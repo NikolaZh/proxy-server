@@ -1,25 +1,12 @@
-const express = require('express');
-const request = require('request');
+var host = process.env.HOST || '0.0.0.0';
+// Listen on a specific port via the PORT environment variable
+var port = process.env.PORT || 8080;
 
-const app = express();
-
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  next();
+var cors_proxy = require('cors-anywhere');
+cors_proxy.createServer({
+  originWhitelist: [], // Allow all origins
+  requireHeader: [],
+  removeHeaders: ['cookie', 'cookie2']
+}).listen(port, host, function () {
+  console.log('Running CORS Anywhere on ' + host + ':' + port);
 });
-
-app.get('/jokes/random', (req, res) => {
-  request(
-    { url: 'https://joke-api-strict-cors.appspot.com/jokes/random' },
-    (error, response, body) => {
-      if (error || response.statusCode !== 200) {
-        return res.status(500).json({ type: 'error', message: err.message });
-      }
-
-      res.json(JSON.parse(body));
-    }
-  )
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`listening on ${PORT}`));
